@@ -54,6 +54,7 @@ var player, platforms;
 var cursors;
 var cd;
 //var enemy;
+var stop;
 var bullets;
 var stars;
 var gameoverText;
@@ -62,10 +63,15 @@ var counter=0;
 var counterText;
 var door;
 var winText;
+var x123;
+var goodAns;
+var ans;
 function cdminus(){if(cd>0)cd--;}
 function create() {
   setInterval(cdminus, 400)
   cd =0;
+  stop=false;
+  ans=false;
   let back = this.add.tileSprite(0, 0, 480, 270, "background");
   back.setOrigin(0);
   back.setScrollFactor(0); //fixedToCamera = true;
@@ -113,7 +119,12 @@ function create() {
     repeat: -1
   });
   
-  
+  x123 = this.input.keyboard.addKeys({
+    X:  Phaser.Input.Keyboard.KeyCodes.X,
+    D1:  Phaser.Input.Keyboard.KeyCodes.ONE,
+    D2:  Phaser.Input.Keyboard.KeyCodes.TWO,
+    D3:  Phaser.Input.Keyboard.KeyCodes.THREE
+});
   cursors = this.input.keyboard.createCursorKeys();
   platforms = this.physics.add.staticGroup();
   stars = this.physics.add.staticGroup();
@@ -297,9 +308,9 @@ platforms.create(2560, 270, "platform");
   star8.anims.play("coi", true);
     
 }
-
+var pytText
 function update() {
-  
+  if(stop==false){
   if (cursors.left.isDown) {
     player.setVelocityX(-150);
     player.anims.play("left", true);
@@ -343,16 +354,52 @@ function update() {
   this.physics.overlap(player,stars,playerHitsStar);
   this.physics.overlap(player,enemys,enemyHitsPlayer);
   this.physics.overlap(player,door,playerHitsDoor);
+  if (x123.X.isDown){
+    ans=false;
+    stop=true;
+     enemys.getChildren().forEach(c =>
+    c
+      .body.enable=false
+  );
+  pytText = this.add.text(240, 140,
+    'pytanie',
+    { font: "40px Arial", fill: "#ffffff", align: "center" });
+  pytText.setOrigin(0.5);
+  pytText.setScrollFactor(0);
+  pytText.visible = true;
+  goodAns=1;
+  }
+  }
+  else
+{
+    if(x123.D1.isDown)
+    {
+    let y=enemys.getChildren()[0];
+      console.log(y)
+
+      if(goodAns==1){;
+        y.destroy();
+      }
+        pytText.destroy();
+        stop=false;
+        enemys.getChildren().forEach(c =>
+    c
+      .body.enable=true
+      
+  );
+  ans=true;
+    }
+}
 }
 function bulletHitsEnemy(bullet, enemy) {
-  bullet.disableBody(true, true);
-  enemy.disableBody(true, true);
+  bullet.destroy(true, true);
+  enemy.destroy(true, true);
   counter++;
   counterText.text=counter;
   
 }
 function bulletHitsPlatform(bullet, platform) {
-  bullet.disableBody(true, true);
+  bullet.destroy(true, true);
 }
 function enemyHitsPlatform(enemy, platform) {
   if(enemy.y>=platform.y-20&&enemy.y<=platform.y+20){
@@ -361,17 +408,17 @@ function enemyHitsPlatform(enemy, platform) {
 }
 function playerHitsStar(player,star)
 {
-  star.disableBody(true,true)
+  star.destroy(true,true)
   counter++;
   counterText.text=counter;
 }
 function enemyHitsPlayer(player,enemy)
 {
-  player.disableBody(true,true)
+  player.destroy(true,true)
   gameoverText.visible = true;
 }
 function playerHitsDoor(player,door)
 {
   if(counter>14){winText.visible = true;
-  player.disableBody(true,true);}
+  player.destroy(true,true);}
 }
